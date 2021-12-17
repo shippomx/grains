@@ -44,12 +44,14 @@ func  (f *Frame) decodeBody(body []string) {
 		} else {
 			stack.FuncName = body[i]
 		}
-		strLoc := body[i+1][1:]
-		stack.Location = strLoc
-		reg = regexp.MustCompile(`([\w.\-\/:\d]+) ([+0x\d]+)`)
-		locations := reg.FindStringSubmatch(strLoc)
-		if len(locations) > 0 {
-			stack.Location = locations[0]
+		if len(body[i+1]) > 0 {
+			strLoc := body[i+1][1:]
+			stack.Location = strLoc
+			reg = regexp.MustCompile(`([\w.\-\/:\d]+) ([+0x\d]+)`)
+			locations := reg.FindStringSubmatch(strLoc)
+			if len(locations) > 0 {
+				stack.Location = locations[0]
+			}
 		}
 		f.Stacks = append(f.Stacks, stack)
 	}
