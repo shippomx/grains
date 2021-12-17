@@ -6,8 +6,9 @@ command `trim` generate the summary.
 command `show [goutine_id]` print the goroutine details.
 
 ## 
-```
-grains dockerd.log
+```bash
+$ grains dockerd.log
+
 Entering interactive mode (type "help" for commands, "o" for options)
 (grains) trim
 ================= Summary =================
