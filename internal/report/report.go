@@ -38,8 +38,8 @@ func Generate(w io.Writer, rpt *Report, cmd []string) (err error) {
 // Report contains the data and associated routines to extract a
 // report from a dump.
 type Report struct {
-	prof        *dump.Dump
-	options     *Options
+	prof    *dump.Dump
+	options *Options
 }
 
 // New builds a new report indexing the sample values interpreting the
@@ -47,7 +47,7 @@ type Report struct {
 func New(prof *dump.Dump, o *Options) *Report {
 	// Trim
 	return &Report{
-		prof: prof.Duplicated(),
+		prof:    prof.Duplicated(),
 		options: o,
 	}
 }
@@ -82,18 +82,12 @@ func trimStacks(w io.Writer, rpt *Report) {
 		if cnt > 1 {
 			frames := rpt.prof.GetFramesByReason(reason, 0)
 			for i := 0; i < len(frames); i++ {
-				for j := i+1; j < len(frames); j++ {
+				for j := i + 1; j < len(frames); j++ {
 					if hasDeadLock(frames[i], frames[j]) {
 						fmt.Fprintf(w, "================= WARNING DEAD LOCK %s =================\n", frames[i].Reason)
 						fmt.Fprintf(w, "goroutine %d has surspicous DEAD LOCK with goroutine %d\n", frames[i].GID, frames[j].GID)
 						fmt.Fprintf(w, "LockHolders of goroutine %d: %v\n", frames[i].GID, frames[i].LockHolders)
 						fmt.Fprintf(w, "LockHolders of goroutine %d: %v\n", frames[j].GID, frames[j].LockHolders)
-						//var holders = make([]int, len(frames))
-						//for k, f := range frames {
-						//	holders[k] = f.GID
-						//}
-						//fmt.Fprintf(w, "all goroutines: %v\n", holders)
-						//fmt.Fprintf(w, "===========================================\n")
 					}
 				}
 			}
@@ -109,11 +103,14 @@ func printFrame(w io.Writer, rpt *Report, gid string) {
 		fmt.Fprintf(w, "no such goroutine %s, try another one\n", gid)
 		return
 	}
-	fmt.Fprintf(w, "================= goroutine %s =================\n", gid)
+	fmt.Fprintf(w, "================= goroutine %s start =================\n", gid)
+
 	fmt.Fprintf(w, "goroutine %d [%s, %d minutes]:\n", f.GID, f.Reason, f.Duration)
 	for _, stack := range f.Stacks {
 		fmt.Fprintf(w, "%s(%s)\n\t%s\n", stack.FuncName, stack.Params, stack.Location)
 	}
+
+	fmt.Fprintf(w, "================= goroutine %s end =================\n", gid)
 	return
 }
 
@@ -134,7 +131,7 @@ func printTrimed(w io.Writer, rpt *Report) {
 		if frame.LockInfo.Stack != nil {
 			fmt.Fprint(w, "[LockType:%s, FuncName: %s, Location: %s]\n", frame.LockInfo.LockType, frame.LockInfo.FuncName, frame.Location)
 		}
-		for _, head:= range frame.Heads {
+		for _, head := range frame.Heads {
 			fmt.Fprintf(w, "{gid: %d, duration: %d min}, ", head.GID, head.Duration)
 		}
 

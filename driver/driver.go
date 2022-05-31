@@ -17,20 +17,20 @@ func Grains(o *Options) error {
 
 func (o *Options) internalOptions() *plugin.Options {
 	return &plugin.Options{
-		Writer:        o.Writer,
-		Flagset:       o.Flagset,
-		Fetch:         o.Fetch,
-		UI:            o.UI,
+		Writer:  o.Writer,
+		Flagset: o.Flagset,
+		Fetch:   o.Fetch,
+		UI:      o.UI,
 	}
 }
 
 // Options groups all the optional plugins into grains.
 type Options struct {
-	Writer        Writer
-	Flagset       FlagSet
-	Fetch         Fetcher
-	Sym           Symbolizer
-	UI            UI
+	Writer  Writer
+	Flagset FlagSet
+	Fetch   Fetcher
+	Sym     Symbolizer
+	UI      UI
 }
 
 // Writer provides a mechanism to write data under a certain name,

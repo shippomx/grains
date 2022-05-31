@@ -55,7 +55,7 @@ func parseFlags(o *plugin.Options) (*source, []string, error) {
 	}
 
 	source := &source{
-		Sources:            args,
+		Sources: args,
 	}
 
 	if err := source.addBaseDumps(*flagBase); err != nil {

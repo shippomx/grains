@@ -135,8 +135,8 @@ type dumpSource struct {
 	addr   string
 	source *source
 
-	p      *dump.Dump
-	err    error
+	p   *dump.Dump
+	err error
 }
 
 // setTmpDir prepares the directory to use to save dumps retrieved

@@ -44,9 +44,9 @@ type PostProcessor func(input io.Reader, output io.Writer, ui plugin.UI) error
 
 // grainsCommands are the report generation commands recognized by grains.
 var grainsCommands = commands{
-	"trim":      {report.Text, nil, nil, false, "Trim the dump", reportHelp("trim", true, true)},
-	"show":      {report.Text, nil, nil, true, "show the goroutine", reportHelp("show", true, true)},
-	"dump":      {report.Text, nil, nil, true, "dump to file", reportHelp("dump", true, true)},
+	"trim": {report.Text, nil, nil, false, "Trim the dump", reportHelp("trim", true, true)},
+	"show": {report.Text, nil, nil, true, "show the goroutine", reportHelp("show", true, true)},
+	"dump": {report.Text, nil, nil, false, "dump stacks to file", reportHelp("dump", true, true)},
 }
 
 // configHelp contains help text per configuration parameter.
@@ -123,19 +123,6 @@ func reportHelp(c string, cum, redirect bool) string {
 	if cum {
 		h[0] += " [-cum]"
 		h = append(h, "-cum sorts the output by cumulative weight")
-	}
-	if redirect {
-		h[0] += " >f"
-		h = append(h, "Optionally save the report on the file f")
-	}
-	return strings.Join(h, "\n")
-}
-
-func listHelp(c string, redirect bool) string {
-	h := []string{
-		c + "<func_regex|address> [-focus_regex]* [-ignore_regex]*",
-		"Include functions matching func_regex, or including the address specified.",
-		"Include samples matching focus_regex, and exclude ignore_regex.",
 	}
 	if redirect {
 		h[0] += " >f"

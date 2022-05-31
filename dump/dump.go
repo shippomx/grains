@@ -10,19 +10,19 @@ import (
 )
 
 type Head struct {
-	GID	int
+	GID      int
 	Duration int
 }
 
 type Stack struct {
 	Location string
 	FuncName string
-	Params string
+	Params   string
 }
 
 type Frame struct {
 	Reason string
-	Size int
+	Size   int
 
 	Head
 	Stacks []Stack
@@ -32,16 +32,16 @@ type Frame struct {
 
 type LockInfo struct {
 	*Stack
-	LockType string
+	LockType    string
 	LockHolders []string
 }
 
 // Dump is an in-memory representation of dump.proto.
 type Dump struct {
 	TrimedFrames map[string]TrimedFrame
-	RawFrames map[string]*Frame
-	Surmary map[string]int64
-	Goroutines map[int]int
+	RawFrames    map[string]*Frame
+	Surmary      map[string]int64
+	Goroutines   map[int]int
 }
 
 type TrimedFrame struct {
@@ -51,10 +51,10 @@ type TrimedFrame struct {
 
 func NewDump() (p *Dump) {
 	p = &Dump{
-		RawFrames: make(map[string]*Frame),
+		RawFrames:    make(map[string]*Frame),
 		TrimedFrames: make(map[string]TrimedFrame),
-		Surmary:  make(map[string]int64),
-		Goroutines: make(map[int]int),
+		Surmary:      make(map[string]int64),
+		Goroutines:   make(map[int]int),
 	}
 	return
 }
@@ -80,12 +80,9 @@ func (p *Dump) InsertRawFrame(f *Frame) {
 	p.Goroutines[f.GID] = f.Duration
 }
 
-
-
 func (p *Dump) GetFrameByGID(gid int) (frame *Frame) {
 	return p.getFrameByGID(gid, p.Goroutines[gid])
 }
-
 
 func (p *Dump) getFrameByGID(gid, idx int) (frame *Frame) {
 	key := fmt.Sprintf("%d_%d", gid, idx)
@@ -100,7 +97,7 @@ func (p *Dump) GetFramesByReason(reason string, idx int) (frames []*Frame) {
 	key := fmt.Sprintf("%s_%d", reason, idx)
 	tf, ok := p.TrimedFrames[key]
 	if ok {
-		for _, head := range tf.Heads	{
+		for _, head := range tf.Heads {
 			f := p.getFrameByGID(head.GID, head.Duration)
 			frames = append(frames, f)
 		}
@@ -190,7 +187,7 @@ func (p *Dump) ParseData(data string) error {
 var errNoData = fmt.Errorf("empty input file")
 
 // ParseUncompressed parses an uncompressed protobuf into a dump.
-func  (p *Dump) ParseUncompressed(data string) (err error) {
+func (p *Dump) ParseUncompressed(data string) (err error) {
 	if len(data) == 0 {
 		return errNoData
 	}

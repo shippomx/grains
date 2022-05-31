@@ -16,8 +16,8 @@ type config struct {
 	Output string `json:"-"`
 
 	// Display options.
-	SourcePath          string  `json:"-"`
-	TrimPath            string  `json:"-"`
+	SourcePath string `json:"-"`
+	TrimPath   string `json:"-"`
 }
 
 // defaultConfig returns the default configuration values; it is unaffected by
@@ -74,7 +74,7 @@ func init() {
 	// choices holds the list of allowed values for config fields that can
 	// take on one of a bounded set of values.
 	choices := map[string][]string{
-		"sort":        {"cum", "flat"},
+		"sort": {"cum", "flat"},
 	}
 
 	def := defaultConfig()
@@ -96,10 +96,10 @@ func init() {
 			}
 		}
 		f := configField{
-			name:     name,
-			saved:    (name == js[0]),
-			field:    field,
-			choices:  choices[name],
+			name:    name,
+			saved:   (name == js[0]),
+			field:   field,
+			choices: choices[name],
 		}
 		f.defaultValue = def.get(f)
 		configFields = append(configFields, f)
