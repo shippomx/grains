@@ -1,7 +1,6 @@
 package dump
 
 import (
-	"bytes"
 	"compress/gzip"
 	"errors"
 	"fmt"
@@ -129,26 +128,25 @@ func (p *Dump) InsertTrimedFrame(f *Frame) {
 	p.TrimedFrames[key] = tf
 }
 
-func (p *Dump) unmarshal(data []byte) {
+func (p *Dump) unmarshal(data string) {
 	var elems []string
-	//elems = bytes.Split(data, []byte{13, 10, 13, 10}) // two new lines
-	//if len(elems) == 1 {
-	//	elems = bytes.Split(data, []byte{120, 98, 102, 10}) // two new lines
-	//}
-//		elems = strings.Split(string(data), `
-//
-//`)
-	elems = strings.Split(string(data), "\n\r\n")
-	if len(elems) <= 1 {
-		return
+	if elems = strings.Split(data, "\n\n"); len(elems) <= 1 {
+		// try another one
+		if elems = strings.Split(data, "\n\r\n"); len(elems) <= 1 {
+			return
+		}
 	}
+
 	for _, elem := range elems {
 		frame := &Frame{}
-		lines := strings.Split(string(elem), "\r\n")
-		for k, line := range lines {
-			if strings.HasPrefix(line, "goroutine") {
-				frame.decodeHead(lines[k])
-				frame.decodeBody(lines[k+1:])
+		var lines []string
+		if lines = strings.Split(elem, "\n"); len(lines) == 1 {
+			return
+		}
+		for i := 0; i < len(lines); i++ {
+			if strings.HasPrefix(lines[i], "goroutine") {
+				frame.decodeHead(lines[i])
+				frame.decodeBody(lines[i+1:])
 				break
 			}
 		}
@@ -160,6 +158,7 @@ func (p *Dump) unmarshal(data []byte) {
 			p.Goroutines[frame.GID] = frame.Duration
 		}
 	}
+	return
 }
 
 // Parse parses a dump and checks for its validity. The input
@@ -170,22 +169,13 @@ func (p *Dump) Parse(r io.Reader) error {
 	if err != nil {
 		return err
 	}
-	return p.ParseData(data)
+	return p.ParseData(string(data))
 }
 
 // ParseData parses a dump from a buffer and checks for its
 // validity.
-func (p *Dump) ParseData(data []byte) error {
+func (p *Dump) ParseData(data string) error {
 	var err error
-	if len(data) >= 2 && data[0] == 0x1f && data[1] == 0x8b {
-		gz, err := gzip.NewReader(bytes.NewBuffer(data))
-		if err == nil {
-			data, err = ioutil.ReadAll(gz)
-		}
-		if err != nil {
-			return fmt.Errorf("decompressing dump: %v", err)
-		}
-	}
 	if err = p.ParseUncompressed(data); err != nil {
 		return err
 	}
@@ -200,13 +190,13 @@ func (p *Dump) ParseData(data []byte) error {
 var errNoData = fmt.Errorf("empty input file")
 
 // ParseUncompressed parses an uncompressed protobuf into a dump.
-func  (p *Dump) ParseUncompressed(data []byte) (err error) {
+func  (p *Dump) ParseUncompressed(data string) (err error) {
 	if len(data) == 0 {
 		return errNoData
 	}
 	p.unmarshal(data)
 	if len(p.RawFrames) <= 1 {
-		return errors.New("Cannot unmarshal file")
+		return errors.New("cannot unmarshal file")
 	}
 	return nil
 }

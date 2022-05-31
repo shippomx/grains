@@ -45,8 +45,8 @@ type PostProcessor func(input io.Reader, output io.Writer, ui plugin.UI) error
 // grainsCommands are the report generation commands recognized by grains.
 var grainsCommands = commands{
 	"trim":      {report.Text, nil, nil, false, "Trim the dump", reportHelp("trim", true, true)},
-	"summary":   {report.Text, nil, nil, false, "summary the dump", reportHelp("summary", true, true)},
 	"show":      {report.Text, nil, nil, true, "show the goroutine", reportHelp("show", true, true)},
+	"dump":      {report.Text, nil, nil, true, "dump to file", reportHelp("dump", true, true)},
 }
 
 // configHelp contains help text per configuration parameter.

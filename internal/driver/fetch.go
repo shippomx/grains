@@ -39,20 +39,29 @@ func fetchDumps(s *source, o *plugin.Options) (*dump.Dump, error) {
 
 func grabSourcesAndBases(sources, bases []dumpSource, ui plugin.UI) (*dump.Dump, *dump.Dump, bool, error) {
 	wg := sync.WaitGroup{}
-	wg.Add(2)
 	var psrc, pbase *dump.Dump
 	var savesrc, savebase bool
 	var errsrc, errbase error
 	var countsrc, countbase int
-	go func() {
-		defer wg.Done()
-		psrc, savesrc, countsrc, errsrc = chunkedGrab(sources, ui)
-	}()
-	go func() {
-		defer wg.Done()
-		pbase, savebase, countbase, errbase = chunkedGrab(bases, ui)
-	}()
+	if len(sources) > 0 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			psrc, savesrc, countsrc, errsrc = chunkedGrab(sources, ui)
+		}()
+	}
+
+	if len(bases) > 0 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			psrc, savesrc, countsrc, errsrc = chunkedGrab(bases, ui)
+		}()
+	}
 	wg.Wait()
+	if errsrc != nil || errbase != nil {
+		ui.PrintErr(fmt.Sprintf("[Err] errsrc: %s, errbase %s", errsrc, errbase))
+	}
 	save := savesrc || savebase
 
 	if want, got := len(sources), countsrc; want != got {

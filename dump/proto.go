@@ -21,7 +21,7 @@ func (f *Frame) decodeHead(header string) {
 	}
 
 	// goroutine [0-9]* \[[\w ]*]
-	reg = regexp.MustCompile(`goroutine ([\d]+) \[([\w ._]+)]:`)
+	reg = regexp.MustCompile(`goroutine ([\d]+) \[([\w._]+)]:`)
 	params = reg.FindStringSubmatch(header)
 	if len(params) == 3 {
 		head := Head{}
@@ -50,7 +50,7 @@ func  (f *Frame) decodeBody(body []string) {
 			reg = regexp.MustCompile(`([\w.\-\/:\d]+) ([+0x\d]+)`)
 			locations := reg.FindStringSubmatch(strLoc)
 			if len(locations) > 0 {
-				stack.Location = locations[0]
+				stack.Location = locations[1]
 			}
 		}
 		f.Stacks = append(f.Stacks, stack)

@@ -24,12 +24,12 @@ type Options struct {
 // Generate generates a report as directed by the Report.
 func Generate(w io.Writer, rpt *Report, cmd []string) (err error) {
 	switch cmd[0] {
-	case "summary":
-		printSummary(w, rpt)
 	case "trim":
-		printCheck(w, rpt)
+		trimStacks(w, rpt)
 	case "show":
 		printFrame(w, rpt, cmd[1])
+	case "dump":
+		saveTrimed(w, rpt)
 	}
 
 	return
@@ -51,15 +51,6 @@ func New(prof *dump.Dump, o *Options) *Report {
 		options: o,
 	}
 }
-
-func printSummary(w io.Writer, rpt *Report) {
-	fmt.Fprint(w, "blocked goroutine types:\n")
-	for k, v := range rpt.prof.Surmary {
-		fmt.Fprintf(w, "%s: %d\n", k, v)
-	}
-	return
-}
-
 
 func hasDeadLock(f1, f2 *dump.Frame) bool {
 	if len(f1.LockHolders) < 1 || len(f2.LockHolders) < 1 {
@@ -83,9 +74,9 @@ func hasDeadLock(f1, f2 *dump.Frame) bool {
 	return false
 }
 
-func printCheck(w io.Writer, rpt *Report) {
+func trimStacks(w io.Writer, rpt *Report) {
 	fmt.Fprintf(w, "================= Summary =================\n")
-	fmt.Fprint(w, "blocked goroutine types:\n")
+	fmt.Fprint(w, "[blocked goroutine types]:\n")
 	for reason, cnt := range rpt.prof.Surmary {
 		fmt.Fprintf(w, "%s: %d\n", reason, cnt)
 		if cnt > 1 {
@@ -121,7 +112,7 @@ func printFrame(w io.Writer, rpt *Report, gid string) {
 	fmt.Fprintf(w, "================= goroutine %s =================\n", gid)
 	fmt.Fprintf(w, "goroutine %d [%s, %d minutes]:\n", f.GID, f.Reason, f.Duration)
 	for _, stack := range f.Stacks {
-		fmt.Fprintf(w, "%s(%s)\nt%s\n", stack.FuncName, stack.Params, stack.Location)
+		fmt.Fprintf(w, "%s(%s)\n\t%s\n", stack.FuncName, stack.Params, stack.Location)
 	}
 	return
 }
@@ -134,7 +125,7 @@ func saveTrimed(w io.Writer, rpt *Report) {
 	}
 	defer file.Close()
 
-	printTrimed(w, rpt)
+	printTrimed(file, rpt)
 }
 
 func printTrimed(w io.Writer, rpt *Report) {

@@ -43,7 +43,8 @@ func generateRawReport(p *dump.Dump, cmd []string) (c *command, rpt *report.Repo
 	// Get report output format
 	c = grainsCommands[cmd[0]]
 	if c == nil {
-		panic("unexpected nil command")
+		err = errors.New("unexpected nil command")
+		return
 	}
 
 	ro := &report.Options{}
